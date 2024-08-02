@@ -4,7 +4,7 @@ all: $(EXE)
 CC = $(CXX)
 CPPFLAGS += -DLINUX
 CPPFLAGS += -I/usr/include/SDL
-LOADLIBES +=  -lSDL -lSDL_ttf -lfftw3f -lm
+LOADLIBES +=  -lSDL2 -lSDL2_ttf -lfftw3f -lm
 
 CXXFLAGS += -Wall -Wno-unused
 

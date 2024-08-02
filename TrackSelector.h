@@ -23,7 +23,7 @@
 
 #include "Renderer.h"
 #include "ClassicSimulator.h"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
 #include <list>

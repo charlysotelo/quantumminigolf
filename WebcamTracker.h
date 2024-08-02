@@ -25,7 +25,7 @@
 
 #include "quantumminigolf.h"
 #include "Tracker.h"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <math.h>
 #include <cameraTool.h>
 #include <iostream>

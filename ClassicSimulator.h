@@ -24,7 +24,7 @@
 //
 // The classic simulator is still heavy work in progress
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "quantumminigolf.h"
 #include "Renderer.h"
 

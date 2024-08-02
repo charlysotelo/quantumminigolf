@@ -34,7 +34,7 @@
 #include <malloc.h>
 #include <math.h>
 #include <fftw3.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 class QuantumSimulator
 {
