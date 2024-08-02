@@ -27,8 +27,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_ttf.h>
 #include <fftw3.h>
 
 using namespace std;
@@ -38,7 +40,7 @@ using namespace std;
 class Renderer
 {
 public:
-  Renderer (int width, int height, int flag, int holex, int holey, int holer,
+  Renderer (int width, int height, int holex, int holey, int holer,
 	    int rball);
    ~Renderer (void);
 
@@ -70,6 +72,9 @@ public:
   }
 
   SDL_Surface *screen, *V;
+  SDL_Texture *sdlScreenTexture;
+  SDL_Window *sdlWindow = nullptr;
+  SDL_Renderer *sdlRenderer = nullptr;
   int width;
   int height;
 

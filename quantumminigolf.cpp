@@ -97,14 +97,14 @@ wmain (int argc, char *argv[])
 #ifndef VR
   SoftwareTracker stracker (WIDTH, HEIGHT, ix, iy, rball, rvmax, NULL);
   Tracker & tracker = stracker;
-  Renderer renderer (WIDTH, HEIGHT, SDL_HWSURFACE /*| SDL_FULLSCREEN */ , holex, holey, holer, rball);	// | SDL_FULLSCREEN);
+  Renderer renderer (WIDTH, HEIGHT, holex, holey, holer, rball);	// | SDL_FULLSCREEN);
 #endif
 #ifdef VR
   WebcamTracker wctracker (WIDTH, HEIGHT, ix, iy, rball, rvmax, NULL);
   Tracker & tracker = wctracker;
   printf ("adjust your webcam and press <ENTER> to start\n");
   getc (stdin);
-  Renderer renderer (WIDTH, HEIGHT, SDL_HWSURFACE | SDL_FULLSCREEN, holex, holey, holer, rball);	// | SDL_FULLSCREEN);
+  Renderer renderer (WIDTH, HEIGHT, holex, holey, holer, rball);	// | SDL_FULLSCREEN);
 #endif //VR
 
   ClassicSimulator csimulator (WIDTH, HEIGHT, &renderer, holex, holey, holer);

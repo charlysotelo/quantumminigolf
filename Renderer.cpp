@@ -20,7 +20,7 @@
 
 // Constructor:
 // initialize all graphics buffers, load the complex color map and the fonts
-Renderer::Renderer (int width, int height, int flag, int holex, int holey,
+Renderer::Renderer (int width, int height, int holex, int holey,
 		    int holer, int rball)
 {
   this->width = width;
@@ -39,9 +39,11 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
   SDL_VideoInfo *scrnfo;
 #endif
 
-  SDL_Init (SDL_INIT_VIDEO);
-  SDL_WM_SetCaption ("Quantum Minigolf", NULL);
-  SDL_WM_SetIcon (SDL_LoadBMP (GFXDIR "/icon.bmp"), NULL);
+  if (SDL_Init (SDL_INIT_VIDEO) < 0)
+  {
+    printf("Couldn't initialize SDL: %s\n", SDL_GetError());
+    exit(1);
+  }
 
 #ifdef _PROFILE
   scrnfo = SDL_GetVideoInfo ();
@@ -57,14 +59,39 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
   printf ("\n");
 #endif
 
-#ifdef VR
-  screen = SDL_SetVideoMode (640, 480, 32, flag | SDL_HWACCEL);
-#endif
-#ifndef VR
-  screen = SDL_SetVideoMode (width, height, 32, flag | SDL_HWACCEL);
-#endif
+  if (SDL_CreateWindowAndRenderer(0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP, &sdlWindow, &sdlRenderer) < 0)
+  {
+    printf("Error: Can't create windor and renderer: %s \n\n", SDL_GetError());
+  }
+  if (!sdlWindow)
+  {
+    printf ("Error: Con't create sdlWindow\n\n");
+  }
+  if (!sdlRenderer)
+  {
+    printf ("Error: Con't create sdlRenderer\n\n");
+  }
 
-  bBuffer = SDL_CreateRGBSurface (SDL_SWSURFACE, screen->w,
+  SDL_SetRenderDrawColor(sdlRenderer, 0,0,0, 255);
+  SDL_RenderClear(sdlRenderer);
+  SDL_RenderPresent(sdlRenderer);
+  printf("SDL Error: %s\n", SDL_GetError());
+
+
+  SDL_SetWindowTitle(sdlWindow, "Quantum Minigolf (SDL2)");
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+  SDL_RenderSetLogicalSize(sdlRenderer, 640, 480);
+
+  screen = SDL_CreateRGBSurface (0, 640, 480, 32,
+		  0x00FF0000,
+		  0x0000FF00,
+		  0x000000FF,
+		  0xFF000000);
+
+  sdlScreenTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888,
+		  SDL_TEXTUREACCESS_STREAMING, 640, 480);
+
+  bBuffer = SDL_CreateRGBSurface (0, screen->w,
 				  screen->h,
 				  screen->format->BitsPerPixel,
 				  screen->format->Rmask,
@@ -78,7 +105,7 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
       exit (1);
     }
 
-  wave = SDL_CreateRGBSurface (SDL_SWSURFACE | SDL_SRCALPHA, screen->w,
+  wave = SDL_CreateRGBSurface (0, screen->w,
 			       screen->h,
 			       32, 0xff << 24, 0xff << 16, 0xff << 8, 0xff);
   if (!wave)
@@ -115,7 +142,7 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
 
   // compute transparency data of the color maps
   cmapc =
-    SDL_ConvertSurface (cmapc, wave->format, SDL_SWSURFACE | SDL_SRCALPHA);
+    SDL_ConvertSurface (cmapc, wave->format, 0);
   Uint32 *pdata = (Uint32 *) cmapc->pixels;
   for (int i = 0; i < cmapc->w; i++)
     {
@@ -141,7 +168,7 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
     }
 
   cmapm =
-    SDL_ConvertSurface (cmapm, wave->format, SDL_SWSURFACE | SDL_SRCALPHA);
+    SDL_ConvertSurface (cmapm, wave->format, 0);
   pdata = (Uint32 *) cmapm->pixels;
   for (int i = 0; i < cmapm->w; i++)
     {
@@ -167,12 +194,12 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
     }
   cmap = cmapc;
 
-  win = SDL_ConvertSurface (win, screen->format, SDL_SWSURFACE);
-  lose = SDL_ConvertSurface (lose, screen->format, SDL_SWSURFACE);
+  win = SDL_ConvertSurface (win, screen->format, 0);
+  lose = SDL_ConvertSurface (lose, screen->format, 0);
 
-  SDL_SetColorKey (win, SDL_SRCCOLORKEY,
+  SDL_SetColorKey (win, SDL_TRUE,
 		   SDL_MapRGB (win->format, 255, 255, 255));
-  SDL_SetColorKey (lose, SDL_SRCCOLORKEY,
+  SDL_SetColorKey (lose, SDL_TRUE,
 		   SDL_MapRGB (lose->format, 255, 255, 255));
 
   //load the fonts for the menu - preferably tahoma, otherwise LinLiberty
@@ -208,7 +235,7 @@ Renderer::Renderer (int width, int height, int flag, int holex, int holey,
   rBuffer.w = bBuffer->w;
   rBuffer.h = bBuffer->h;
 
-  SDL_EventState (SDL_ACTIVEEVENT, SDL_IGNORE);
+  SDL_EventState (SDL_LASTEVENT, SDL_IGNORE);
   SDL_EventState (SDL_MOUSEMOTION, SDL_IGNORE);
   SDL_EventState (SDL_KEYUP, SDL_IGNORE);
   SDL_EventState (SDL_KEYDOWN, SDL_ENABLE);
@@ -529,7 +556,12 @@ void
 Renderer::Blit ()
 {
   SDL_BlitSurface (bBuffer, NULL, screen, &rBuffer);
-  SDL_UpdateRect (screen, 0, 0, 0, 0);
+
+
+  SDL_UpdateTexture(sdlScreenTexture, NULL, screen->pixels, screen->pitch);
+  SDL_RenderClear(sdlRenderer);
+  SDL_RenderCopy(sdlRenderer, sdlScreenTexture, NULL, NULL);
+  SDL_RenderPresent(sdlRenderer);
 }
 
 void
